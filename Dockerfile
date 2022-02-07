@@ -1,15 +1,16 @@
 # syntax=docker/dockerfile:1
-
-FROM node:16-alpine
-
-ENV NODE_ENV=production
+FROM node:16-alpine AS base
 
 WORKDIR /app
 
 COPY ["package.json", "yarn.lock", "./"]
 
-RUN yarn install --production
-
+FROM base AS test
 COPY . .
+RUN yarn install
+CMD ["yarn", "test"]
 
+FROM base AS production
+COPY . .
+RUN yarn install --production
 CMD ["node", "server.js"]
